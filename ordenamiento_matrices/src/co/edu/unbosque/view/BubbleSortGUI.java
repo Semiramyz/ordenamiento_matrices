@@ -7,7 +7,6 @@ import javax.swing.table.*;
 
 import co.edu.unbosque.controller.Controller;
 import co.edu.unbosque.model.Politico;
-//...importaciones iguales...
 
 public class BubbleSortGUI extends JFrame {
 
@@ -60,10 +59,15 @@ public class BubbleSortGUI extends JFrame {
 					return;
 				}
 
-				Politico[][][] resultado = controller.generarYOrdenarDesdeGUI(n, k, m);
-				mostrarTabla(tablaOriginal, controller.convertirMatrizATexto(resultado[0]));
-				mostrarTabla(tablaDinero, controller.convertirMatrizATexto(resultado[1]));
-				mostrarTabla(tablaEdad, controller.convertirMatrizATexto(resultado[2]));
+				controller.generarYOrdenarDesdeGUI(n, k, m);
+
+				Politico[][] original = controller.getMatrizOriginal();
+				Politico[][] porDinero = controller.getMatrizPorDinero();
+				Politico[][] porEdad = controller.getMatrizPorEdad();
+
+				mostrarTabla(tablaOriginal, controller.convertirMatrizATexto(original));
+				mostrarTabla(tablaDinero, controller.convertirMatrizATexto(porDinero));
+				mostrarTabla(tablaEdad, controller.convertirMatrizATexto(porEdad));
 
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(this, "Por favor ingrese solo números válidos", "Error",

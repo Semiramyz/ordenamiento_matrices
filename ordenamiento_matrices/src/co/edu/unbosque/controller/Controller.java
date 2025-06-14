@@ -10,10 +10,14 @@ import co.edu.unbosque.model.Politico;
 
 public class Controller {
 
-	public Politico[][][] generarYOrdenarDesdeGUI(int n, int k, int m) {
+	private Politico[][] matrizOriginal;
+	private Politico[][] matrizPorDinero;
+	private Politico[][] matrizPorEdad;
+
+	public void generarYOrdenarDesdeGUI(int n, int k, int m) {
 		Politico[] politicos = generarPoliticos(n);
 
-		Politico[][] matrizOriginal = new Politico[k][m];
+		matrizOriginal = new Politico[k][m];
 		int idx = 0;
 		for (int i = 0; i < k; i++) {
 			for (int j = 0; j < m; j++) {
@@ -21,24 +25,22 @@ public class Controller {
 			}
 		}
 
-		Politico[][] matrizDinero = copiarMatriz(matrizOriginal);
-		for (Politico[] fila : matrizDinero) {
+		matrizPorDinero = copiarMatriz(matrizOriginal);
+		for (Politico[] fila : matrizPorDinero) {
 			BubbleSort.ordenarPorDinero(fila);
 		}
 
-		Politico[][] matrizEdad = copiarMatriz(matrizDinero);
+		matrizPorEdad = copiarMatriz(matrizPorDinero);
 		for (int col = 0; col < m; col++) {
 			Politico[] columna = new Politico[k];
 			for (int fila = 0; fila < k; fila++) {
-				columna[fila] = matrizEdad[fila][col];
+				columna[fila] = matrizPorEdad[fila][col];
 			}
 			BubbleSort.ordenarPorEdad(columna);
 			for (int fila = 0; fila < k; fila++) {
-				matrizEdad[fila][col] = columna[fila];
+				matrizPorEdad[fila][col] = columna[fila];
 			}
 		}
-
-		return new Politico[][][] { matrizOriginal, matrizDinero, matrizEdad };
 	}
 
 	public String[][] convertirMatrizATexto(Politico[][] matriz) {
@@ -53,8 +55,9 @@ public class Controller {
 
 	private Politico[] generarPoliticos(int cantidad) {
 		ArrayList<Integer> ids = new ArrayList<>();
-		for (int i = 1; i <= cantidad; i++)
+		for (int i = 1; i <= cantidad; i++) {
 			ids.add(i);
+		}
 		Collections.shuffle(ids);
 
 		Random rand = new Random();
@@ -80,5 +83,17 @@ public class Controller {
 			System.arraycopy(original[i], 0, copia[i], 0, columnas);
 		}
 		return copia;
+	}
+
+	public Politico[][] getMatrizOriginal() {
+		return matrizOriginal;
+	}
+
+	public Politico[][] getMatrizPorDinero() {
+		return matrizPorDinero;
+	}
+
+	public Politico[][] getMatrizPorEdad() {
+		return matrizPorEdad;
 	}
 }
