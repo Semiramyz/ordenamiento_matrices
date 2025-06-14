@@ -5,6 +5,8 @@ import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
@@ -12,7 +14,11 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import co.edu.unbosque.model.BubbleSort;
+import co.edu.unbosque.model.InsertionSort;
+import co.edu.unbosque.model.MergeSort;
 import co.edu.unbosque.model.Politico;
+import co.edu.unbosque.model.QuickSort;
+import co.edu.unbosque.model.SelectionSort;
 import co.edu.unbosque.view.BubbleSortGUI;
 
 public class Controller implements ActionListener {
@@ -22,6 +28,8 @@ public class Controller implements ActionListener {
 	private Politico[][] matrizPorEdad;
 	private BubbleSortGUI b;
 
+	private Map<String, long[]> resultadosAlgoritmos = new LinkedHashMap<>();
+
 	public Controller(BubbleSortGUI gui) {
 		this.b = gui;
 		addListeners();
@@ -30,6 +38,10 @@ public class Controller implements ActionListener {
 	private void addListeners() {
 		b.getBtnGenerar().setActionCommand("generar");
 		b.getBtnGenerar().addActionListener(this);
+		b.getBtnBorrar().setActionCommand("borrar");
+		b.getBtnBorrar().addActionListener(this);
+		b.getBtnVerResultados().setActionCommand("ver_resultados");
+		b.getBtnVerResultados().addActionListener(this);
 	}
 
 	@Override
@@ -47,7 +59,11 @@ public class Controller implements ActionListener {
 					return;
 				}
 
-				generarYOrdenarDesdeGUI(n, k, m);
+				String algoritmo = (String) b.getComboAlgoritmo().getSelectedItem();
+				long[] analisis = generarYOrdenarDesdeGUI(n, k, m, algoritmo);
+
+				// Guarda los resultados para la tabla de resultados
+				resultadosAlgoritmos.put(algoritmo, analisis);
 
 				Politico[][] original = getMatrizOriginal();
 				Politico[][] porDinero = getMatrizPorDinero();
@@ -63,15 +79,47 @@ public class Controller implements ActionListener {
 				mostrarTabla(b.getTablaDinero(), convertirMatrizATexto(porDinero));
 				mostrarTabla(b.getTablaEdad(), convertirMatrizATexto(porEdad));
 
+				JOptionPane.showMessageDialog(b,
+					"Comparaciones: " + analisis[0] +
+					"\nIntercambios: " + analisis[1] +
+					"\nTiempo (ms): " + analisis[2],
+					"Análisis Empírico", JOptionPane.INFORMATION_MESSAGE);
+
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(b, "Por favor ingrese solo números válidos", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 			break;
+		case "borrar":
+			b.getTxtN().setText("");
+			b.getTxtK().setText("");
+			b.getTxtM().setText("");
+			b.getTablaOriginal().setModel(new DefaultTableModel());
+			b.getTablaDinero().setModel(new DefaultTableModel());
+			b.getTablaEdad().setModel(new DefaultTableModel());
+			resultadosAlgoritmos.clear();
+			break;
+		case "ver_resultados":
+			mostrarTablaResultados();
+			break;
 		}
 	}
 
-	public void generarYOrdenarDesdeGUI(int n, int k, int m) {
+	public void mostrarTablaResultados() {
+		String[] columnas = { "Algoritmo", "Comparaciones", "Intercambios", "Tiempo (ms)" };
+		Object[][] datos = new Object[resultadosAlgoritmos.size()][4];
+		int i = 0;
+		for (Map.Entry<String, long[]> entry : resultadosAlgoritmos.entrySet()) {
+			datos[i][0] = entry.getKey();
+			datos[i][1] = entry.getValue()[0];
+			datos[i][2] = entry.getValue()[1];
+			datos[i][3] = entry.getValue()[2];
+			i++;
+		}
+		b.mostrarResultadosTabla(datos, columnas);
+	}
+
+	public long[] generarYOrdenarDesdeGUI(int n, int k, int m, String algoritmo) {
 		Politico[] politicos = generarPoliticos(n);
 
 		matrizOriginal = new Politico[k][m];
@@ -83,21 +131,108 @@ public class Controller implements ActionListener {
 		}
 
 		matrizPorDinero = copiarMatriz(matrizOriginal);
-		for (Politico[] fila : matrizPorDinero) {
-			BubbleSort.ordenarPorDinero(fila);
-		}
+		matrizPorEdad = null;
+		long comparaciones = 0, intercambios = 0;
+		long t0 = System.currentTimeMillis();
 
-		matrizPorEdad = copiarMatriz(matrizPorDinero);
-		for (int col = 0; col < m; col++) {
-			Politico[] columna = new Politico[k];
-			for (int fila = 0; fila < k; fila++) {
-				columna[fila] = matrizPorEdad[fila][col];
+		if ("Bubble Sort".equals(algoritmo)) {
+			for (Politico[] fila : matrizPorDinero) {
+				long[] res = BubbleSort.ordenarPorDineroContando(fila);
+				comparaciones += res[0];
+				intercambios += res[1];
 			}
-			BubbleSort.ordenarPorEdad(columna);
-			for (int fila = 0; fila < k; fila++) {
-				matrizPorEdad[fila][col] = columna[fila];
+			matrizPorEdad = copiarMatriz(matrizPorDinero);
+			for (int col = 0; col < m; col++) {
+				Politico[] columna = new Politico[k];
+				for (int fila = 0; fila < k; fila++) {
+					columna[fila] = matrizPorEdad[fila][col];
+				}
+				long[] res = BubbleSort.ordenarPorEdadContando(columna);
+				comparaciones += res[0];
+				intercambios += res[1];
+				for (int fila = 0; fila < k; fila++) {
+					matrizPorEdad[fila][col] = columna[fila];
+				}
+			}
+		} else if ("Insertion Sort".equals(algoritmo)) {
+			for (Politico[] fila : matrizPorDinero) {
+				long[] res = InsertionSort.ordenarPorDineroContando(fila);
+				comparaciones += res[0];
+				intercambios += res[1];
+			}
+			matrizPorEdad = copiarMatriz(matrizPorDinero);
+			for (int col = 0; col < m; col++) {
+				Politico[] columna = new Politico[k];
+				for (int fila = 0; fila < k; fila++) {
+					columna[fila] = matrizPorEdad[fila][col];
+				}
+				long[] res = InsertionSort.ordenarPorEdadContando(columna);
+				comparaciones += res[0];
+				intercambios += res[1];
+				for (int fila = 0; fila < k; fila++) {
+					matrizPorEdad[fila][col] = columna[fila];
+				}
+			}
+		} else if ("Selection Sort".equals(algoritmo)) {
+			for (Politico[] fila : matrizPorDinero) {
+				long[] res = SelectionSort.ordenarPorDineroContando(fila);
+				comparaciones += res[0];
+				intercambios += res[1];
+			}
+			matrizPorEdad = copiarMatriz(matrizPorDinero);
+			for (int col = 0; col < m; col++) {
+				Politico[] columna = new Politico[k];
+				for (int fila = 0; fila < k; fila++) {
+					columna[fila] = matrizPorEdad[fila][col];
+				}
+				long[] res = SelectionSort.ordenarPorEdadContando(columna);
+				comparaciones += res[0];
+				intercambios += res[1];
+				for (int fila = 0; fila < k; fila++) {
+					matrizPorEdad[fila][col] = columna[fila];
+				}
+			}
+		} else if ("Merge Sort".equals(algoritmo)) {
+			for (Politico[] fila : matrizPorDinero) {
+				long[] res = MergeSort.ordenarPorDineroContando(fila);
+				comparaciones += res[0];
+				intercambios += res[1];
+			}
+			matrizPorEdad = copiarMatriz(matrizPorDinero);
+			for (int col = 0; col < m; col++) {
+				Politico[] columna = new Politico[k];
+				for (int fila = 0; fila < k; fila++) {
+					columna[fila] = matrizPorEdad[fila][col];
+				}
+				long[] res = MergeSort.ordenarPorEdadContando(columna);
+				comparaciones += res[0];
+				intercambios += res[1];
+				for (int fila = 0; fila < k; fila++) {
+					matrizPorEdad[fila][col] = columna[fila];
+				}
+			}
+		} else if ("Quick Sort".equals(algoritmo)) {
+			for (Politico[] fila : matrizPorDinero) {
+				long[] res = QuickSort.ordenarPorDineroContando(fila);
+				comparaciones += res[0];
+				intercambios += res[1];
+			}
+			matrizPorEdad = copiarMatriz(matrizPorDinero);
+			for (int col = 0; col < m; col++) {
+				Politico[] columna = new Politico[k];
+				for (int fila = 0; fila < k; fila++) {
+					columna[fila] = matrizPorEdad[fila][col];
+				}
+				long[] res = QuickSort.ordenarPorEdadContando(columna);
+				comparaciones += res[0];
+				intercambios += res[1];
+				for (int fila = 0; fila < k; fila++) {
+					matrizPorEdad[fila][col] = columna[fila];
+				}
 			}
 		}
+		long t1 = System.currentTimeMillis();
+		return new long[] { comparaciones, intercambios, t1 - t0 };
 	}
 
 	private Politico[] generarPoliticos(int cantidad) {
@@ -153,6 +288,12 @@ public class Controller implements ActionListener {
 			model.addRow(fila);
 		}
 		tabla.setModel(model);
+
+		// Ajustar el ancho de todas las columnas para que se vean completas
+		int ancho = 300; // Puedes ajustar este valor si lo deseas más ancho o más angosto
+		for (int i = 0; i < tabla.getColumnCount(); i++) {
+			tabla.getColumnModel().getColumn(i).setPreferredWidth(ancho);
+		}
 	}
 
 	public Politico[][] getMatrizOriginal() {
