@@ -94,9 +94,9 @@ public class BubbleSortGUI extends JFrame {
 		tablaDinero = crearTabla();
 		tablaEdad = crearTabla();
 
-		tablesPanel.add(wrapTablaConTitulo(tablaOriginal, "🔸 Matriz Original"));
-		tablesPanel.add(wrapTablaConTitulo(tablaDinero, "🔹 Ordenado por Dinero (Filas)"));
-		tablesPanel.add(wrapTablaConTitulo(tablaEdad, "🔻 Ordenado por Edad (Columnas)"));
+		tablesPanel.add(wrapTablaConTitulo(tablaOriginal, " Matriz Original"));
+		tablesPanel.add(wrapTablaConTitulo(tablaDinero, " Ordenado por Dinero (Filas)"));
+		tablesPanel.add(wrapTablaConTitulo(tablaEdad, " Ordenado por Edad (Columnas)"));
 
 		parent.add(tablesPanel, BorderLayout.CENTER);
 	}
