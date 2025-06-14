@@ -1,18 +1,75 @@
 package co.edu.unbosque.controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
 import co.edu.unbosque.model.BubbleSort;
 import co.edu.unbosque.model.Politico;
+import co.edu.unbosque.view.BubbleSortGUI;
 
-public class Controller {
+public class Controller implements ActionListener {
 
 	private Politico[][] matrizOriginal;
 	private Politico[][] matrizPorDinero;
 	private Politico[][] matrizPorEdad;
+	private BubbleSortGUI b;
+
+	public Controller(BubbleSortGUI gui) {
+		this.b = gui;
+		addListeners();
+	}
+
+	private void addListeners() {
+		b.getBtnGenerar().setActionCommand("generar");
+		b.getBtnGenerar().addActionListener(this);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		switch (e.getActionCommand()) {
+		case "generar":
+			try {
+				int n = Integer.parseInt(b.getTxtN().getText());
+				int k = Integer.parseInt(b.getTxtK().getText());
+				int m = Integer.parseInt(b.getTxtM().getText());
+
+				if (n < 10 || k * m > n) {
+					JOptionPane.showMessageDialog(b, "n debe ser al menos 10 y k*m <= n", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				generarYOrdenarDesdeGUI(n, k, m);
+
+				Politico[][] original = getMatrizOriginal();
+				Politico[][] porDinero = getMatrizPorDinero();
+				Politico[][] porEdad = getMatrizPorEdad();
+
+				if (original == null || porDinero == null || porEdad == null) {
+					JOptionPane.showMessageDialog(b, "Error: Matrices no inicializadas", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+
+				mostrarTabla(b.getTablaOriginal(), convertirMatrizATexto(original));
+				mostrarTabla(b.getTablaDinero(), convertirMatrizATexto(porDinero));
+				mostrarTabla(b.getTablaEdad(), convertirMatrizATexto(porEdad));
+
+			} catch (NumberFormatException ex) {
+				JOptionPane.showMessageDialog(b, "Por favor ingrese solo números válidos", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+			break;
+		}
+	}
 
 	public void generarYOrdenarDesdeGUI(int n, int k, int m) {
 		Politico[] politicos = generarPoliticos(n);
@@ -41,16 +98,6 @@ public class Controller {
 				matrizPorEdad[fila][col] = columna[fila];
 			}
 		}
-	}
-
-	public String[][] convertirMatrizATexto(Politico[][] matriz) {
-		String[][] resultado = new String[matriz.length][matriz[0].length];
-		for (int i = 0; i < matriz.length; i++) {
-			for (int j = 0; j < matriz[0].length; j++) {
-				resultado[i][j] = matriz[i][j].toString();
-			}
-		}
-		return resultado;
 	}
 
 	private Politico[] generarPoliticos(int cantidad) {
@@ -83,6 +130,29 @@ public class Controller {
 			System.arraycopy(original[i], 0, copia[i], 0, columnas);
 		}
 		return copia;
+	}
+
+	public String[][] convertirMatrizATexto(Politico[][] matriz) {
+		String[][] resultado = new String[matriz.length][matriz[0].length];
+		for (int i = 0; i < matriz.length; i++) {
+			for (int j = 0; j < matriz[0].length; j++) {
+				resultado[i][j] = matriz[i][j].toString();
+			}
+		}
+		return resultado;
+	}
+
+	private void mostrarTabla(JTable tabla, String[][] datos) {
+		String[] columnas = new String[datos[0].length];
+		for (int i = 0; i < columnas.length; i++) {
+			columnas[i] = "Col " + (i + 1);
+		}
+
+		DefaultTableModel model = new DefaultTableModel(columnas, 0);
+		for (String[] fila : datos) {
+			model.addRow(fila);
+		}
+		tabla.setModel(model);
 	}
 
 	public Politico[][] getMatrizOriginal() {

@@ -5,19 +5,14 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 
-import co.edu.unbosque.controller.Controller;
-import co.edu.unbosque.model.Politico;
-
 public class BubbleSortGUI extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField txtN, txtK, txtM;
 	private JButton btnGenerar;
 	private JTable tablaOriginal, tablaDinero, tablaEdad;
-	private Controller controller;
 
 	public BubbleSortGUI() {
-		controller = new Controller();
 		setTitle("Ordenar Políticos por Dinero y Edad");
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -32,7 +27,7 @@ public class BubbleSortGUI extends JFrame {
 		crearPanelTablas(mainPanel);
 	}
 
-	private void crearPanelInputs(JPanel parent) {
+	private void crearPanelInputs(JPanel PANEL) {
 		JPanel inputPanel = new JPanel();
 		inputPanel.setLayout(new GridLayout(2, 4, 15, 10));
 		inputPanel.setBackground(new Color(180, 220, 190));
@@ -47,40 +42,13 @@ public class BubbleSortGUI extends JFrame {
 		btnGenerar.setFont(new Font("Arial", Font.BOLD, 15));
 		btnGenerar.setBackground(new Color(100, 180, 120));
 		btnGenerar.setFocusPainted(false);
-		btnGenerar.addActionListener(e -> {
-			try {
-				int n = Integer.parseInt(txtN.getText());
-				int k = Integer.parseInt(txtK.getText());
-				int m = Integer.parseInt(txtM.getText());
-
-				if (n < 10 || k * m > n) {
-					JOptionPane.showMessageDialog(this, "n debe ser al menos 10 y k*m <= n", "Error",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				controller.generarYOrdenarDesdeGUI(n, k, m);
-
-				Politico[][] original = controller.getMatrizOriginal();
-				Politico[][] porDinero = controller.getMatrizPorDinero();
-				Politico[][] porEdad = controller.getMatrizPorEdad();
-
-				mostrarTabla(tablaOriginal, controller.convertirMatrizATexto(original));
-				mostrarTabla(tablaDinero, controller.convertirMatrizATexto(porDinero));
-				mostrarTabla(tablaEdad, controller.convertirMatrizATexto(porEdad));
-
-			} catch (NumberFormatException ex) {
-				JOptionPane.showMessageDialog(this, "Por favor ingrese solo números válidos", "Error",
-						JOptionPane.ERROR_MESSAGE);
-			}
-		});
 
 		inputPanel.add(txtN);
 		inputPanel.add(txtK);
 		inputPanel.add(txtM);
 		inputPanel.add(btnGenerar);
 
-		parent.add(inputPanel, BorderLayout.NORTH);
+		PANEL.add(inputPanel, BorderLayout.NORTH);
 	}
 
 	private JTextField crearCampo(String titulo) {
@@ -90,7 +58,7 @@ public class BubbleSortGUI extends JFrame {
 		return campo;
 	}
 
-	private void crearPanelTablas(JPanel parent) {
+	private void crearPanelTablas(JPanel PANEL) {
 		JPanel tablesPanel = new JPanel(new GridLayout(3, 1, 15, 15));
 		tablesPanel.setBackground(new Color(200, 230, 210));
 
@@ -102,14 +70,13 @@ public class BubbleSortGUI extends JFrame {
 		tablesPanel.add(wrapTablaConTitulo(tablaDinero, " Ordenado por Dinero (Filas)"));
 		tablesPanel.add(wrapTablaConTitulo(tablaEdad, " Ordenado por Edad (Columnas)"));
 
-		parent.add(tablesPanel, BorderLayout.CENTER);
+		PANEL.add(tablesPanel, BorderLayout.CENTER);
 	}
 
 	private JTable crearTabla() {
 		JTable table = new JTable();
 		table.setFont(new Font("Consolas", Font.PLAIN, 13));
 		table.setRowHeight(32);
-		table.setDefaultRenderer(Object.class, new MultilineCellRenderer());
 		return table;
 	}
 
@@ -126,33 +93,63 @@ public class BubbleSortGUI extends JFrame {
 		return panel;
 	}
 
-	private void mostrarTabla(JTable tabla, String[][] datos) {
-		String[] columnas = new String[datos[0].length];
-		for (int i = 0; i < columnas.length; i++) {
-			columnas[i] = "Col " + (i + 1);
-		}
-
-		DefaultTableModel model = new DefaultTableModel(columnas, 0);
-		for (String[] fila : datos) {
-			model.addRow(fila);
-		}
-		tabla.setModel(model);
+	public JTextField getTxtN() {
+		return txtN;
 	}
 
-	class MultilineCellRenderer extends JTextArea implements TableCellRenderer {
-		public MultilineCellRenderer() {
-			setLineWrap(true);
-			setWrapStyleWord(true);
-			setOpaque(true);
-			setFont(new Font("Consolas", Font.PLAIN, 13));
-		}
+	public void setTxtN(JTextField txtN) {
+		this.txtN = txtN;
+	}
 
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			setText(value != null ? value.toString() : "");
-			setBackground(row % 2 == 0 ? new Color(235, 255, 240) : new Color(220, 240, 225));
-			return this;
-		}
+	public JTextField getTxtK() {
+		return txtK;
+	}
+
+	public void setTxtK(JTextField txtK) {
+		this.txtK = txtK;
+	}
+
+	public JTextField getTxtM() {
+		return txtM;
+	}
+
+	public void setTxtM(JTextField txtM) {
+		this.txtM = txtM;
+	}
+
+	public JButton getBtnGenerar() {
+		return btnGenerar;
+	}
+
+	public void setBtnGenerar(JButton btnGenerar) {
+		this.btnGenerar = btnGenerar;
+	}
+
+	public JTable getTablaOriginal() {
+		return tablaOriginal;
+	}
+
+	public void setTablaOriginal(JTable tablaOriginal) {
+		this.tablaOriginal = tablaOriginal;
+	}
+
+	public JTable getTablaDinero() {
+		return tablaDinero;
+	}
+
+	public void setTablaDinero(JTable tablaDinero) {
+		this.tablaDinero = tablaDinero;
+	}
+
+	public JTable getTablaEdad() {
+		return tablaEdad;
+	}
+
+	public void setTablaEdad(JTable tablaEdad) {
+		this.tablaEdad = tablaEdad;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 }
