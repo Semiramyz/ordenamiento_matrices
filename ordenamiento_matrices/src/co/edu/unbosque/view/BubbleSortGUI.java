@@ -29,8 +29,6 @@ public class BubbleSortGUI extends JFrame {
 
 		crearPanelInputs(mainPanel);
 		crearPanelTablas(mainPanel);
-
-		setVisible(true);
 	}
 
 	private void crearPanelInputs(JPanel PANEL) {
