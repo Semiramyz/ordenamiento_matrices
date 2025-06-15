@@ -13,8 +13,6 @@ public class BubbleSortGUI extends JFrame {
 	private JButton btnGenerar;
 	private JButton btnBorrar;
 	private JButton btnVerResultados; 
-	private JButton btnExportarResultados;  // <--- DECLARAR AL INICIO DE LA CLASE
-
 	private JComboBox<String> comboAlgoritmo;
 	private JTable tablaOriginal, tablaDinero, tablaEdad;
 
@@ -64,11 +62,6 @@ public class BubbleSortGUI extends JFrame {
 		btnVerResultados.setFont(new Font("Arial", Font.BOLD, 15));
 		btnVerResultados.setBackground(new Color(80, 120, 200));
 		btnVerResultados.setFocusPainted(false);
-		
-		btnExportarResultados = new JButton("Exportar Resultados");
-		btnExportarResultados.setFont(new Font("Arial", Font.BOLD, 15));
-		btnExportarResultados.setBackground(new Color(150, 90, 200));
-		btnExportarResultados.setFocusPainted(false);
 
 		inputPanel.add(txtN);
 		inputPanel.add(txtK);
@@ -77,9 +70,6 @@ public class BubbleSortGUI extends JFrame {
 		inputPanel.add(btnGenerar);
 		inputPanel.add(btnBorrar);
 		inputPanel.add(btnVerResultados); 
-		inputPanel.add(btnExportarResultados);
-
-	
 
 		PANEL.add(inputPanel, BorderLayout.NORTH);
 	}
@@ -112,6 +102,7 @@ public class BubbleSortGUI extends JFrame {
 		table.setRowHeight(32);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Desactiva el ajuste automático de columnas
 
+		// Hace que las columnas no se puedan mover
 		JTableHeader header = table.getTableHeader();
 		header.setReorderingAllowed(false);
 
@@ -217,15 +208,6 @@ public class BubbleSortGUI extends JFrame {
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
-	}
-	
-
-	public JButton getBtnExportarResultados() {
-		return btnExportarResultados;
-	}
-
-	public void setBtnExportarResultados(JButton btnExportarResultados) {
-		this.btnExportarResultados = btnExportarResultados;
 	}
 
 	public void mostrarResultadosTabla(Object[][] datos, String[] columnas) {

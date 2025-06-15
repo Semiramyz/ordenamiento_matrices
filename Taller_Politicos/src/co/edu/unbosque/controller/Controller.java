@@ -16,7 +16,6 @@ import javax.swing.table.DefaultTableModel;
 import co.edu.unbosque.model.BubbleSort;
 import co.edu.unbosque.model.InsertionSort;
 import co.edu.unbosque.model.MergeSort;
-import co.edu.unbosque.model.PDFMatriz;
 import co.edu.unbosque.model.Politico;
 import co.edu.unbosque.model.QuickSort;
 import co.edu.unbosque.model.SelectionSort;
@@ -28,7 +27,6 @@ public class Controller implements ActionListener {
 	private Politico[][] matrizPorDinero;
 	private Politico[][] matrizPorEdad;
 	private BubbleSortGUI b;
-	
 
 	private Map<String, long[]> resultadosAlgoritmos = new LinkedHashMap<>();
 
@@ -44,9 +42,6 @@ public class Controller implements ActionListener {
 		b.getBtnBorrar().addActionListener(this);
 		b.getBtnVerResultados().setActionCommand("ver_resultados");
 		b.getBtnVerResultados().addActionListener(this);
-		b.getBtnExportarResultados().setActionCommand("exportar_resultados");
-		b.getBtnExportarResultados().addActionListener(this);
-
 	}
 
 	@Override
@@ -107,15 +102,6 @@ public class Controller implements ActionListener {
 		case "ver_resultados":
 			mostrarTablaResultados();
 			break;
-		case "exportar_resultados":
-			if (resultadosAlgoritmos.isEmpty()) {
-				JOptionPane.showMessageDialog(b, "No hay resultados para exportar", "Aviso", JOptionPane.WARNING_MESSAGE);
-				return;
-			}
-			PDFMatriz generador = new PDFMatriz();
-			generador.generarReporte(resultadosAlgoritmos);
-			break;
-
 		}
 	}
 
